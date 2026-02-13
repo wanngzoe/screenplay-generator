@@ -128,27 +128,26 @@ if st.button("🎬 生成剧本", type="primary", disabled=not novel_input):
                 script_content = None
 
         if script_content:
+            # 显示优化报告
+            with st.expander("📊 优化报告", expanded=True):
+                cols = st.columns(4)
+                for i, (item, count) in enumerate(report.items()):
+                    cols[i % 4].metric(item, count)
 
-        # 显示优化报告
-        with st.expander("📊 优化报告", expanded=True):
-            cols = st.columns(4)
-            for i, (item, count) in enumerate(report.items()):
-                cols[i % 4].metric(item, count)
+            # 显示剧本
+            st.subheader("📄 生成的剧本")
 
-        # 显示剧本
-        st.subheader("📄 生成的剧本")
+            # 剧本预览（可折叠）
+            with st.expander("预览完整剧本", expanded=True):
+                st.markdown(script_content)
 
-        # 剧本预览（可折叠）
-        with st.expander("预览完整剧本", expanded=True):
-            st.markdown(script_content)
-
-        # 下载按钮
-        st.download_button(
-            label="📥 下载剧本",
-            data=script_content,
-            file_name=f"{title}.md",
-            mime="text/markdown"
-        )
+            # 下载按钮
+            st.download_button(
+                label="📥 下载剧本",
+                data=script_content,
+                file_name=f"{title}.md",
+                mime="text/markdown"
+            )
 
 # 底部说明
 st.divider()
