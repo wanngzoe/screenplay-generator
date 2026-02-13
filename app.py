@@ -48,10 +48,20 @@ with st.sidebar:
 
     # API 配置
     st.header("🔑 API 配置")
+
     api_provider = st.selectbox(
         "API 提供商",
-        ["claude", "openai"],
-        format_func=lambda x: {"claude": "Claude (Anthropic)", "openai": "OpenAI GPT-4"}[x],
+        ["claude", "openai", "gemini", "deepseek", "qwen", "ernie", "chatglm", "kimi"],
+        format_func=lambda x: {
+            "claude": "Claude (Anthropic)",
+            "openai": "OpenAI GPT-4",
+            "gemini": "Google Gemini",
+            "deepseek": "DeepSeek",
+            "qwen": "阿里通义千问",
+            "ernie": "百度文心一言",
+            "chatglm": "智谱 ChatGLM",
+            "kimi": "Kimi (Moonshot)"
+        }[x],
         help="选择要使用的 AI API"
     )
 
@@ -81,8 +91,14 @@ with st.sidebar:
     st.markdown("""
     **提示**
     - 需要自备 API Key
-    - Claude API: https://console.anthropic.com
-    - OpenAI API: https://platform.openai.com/api-keys
+    - Claude: https://console.anthropic.com
+    - OpenAI: https://platform.openai.com/api-keys
+    - Gemini: https://aistudio.google.com
+    - DeepSeek: https://platform.deepseek.com
+    - 通义千问: https://dashscope.console.aliyun.com
+    - 文心一言: https://console.bce.baidu.com
+    - ChatGLM: https://open.bigmodel.cn
+    - Kimi: https://platform.moonshot.cn
     """)
 
 # 主内容区
@@ -265,8 +281,22 @@ def call_ai_model(novel, title, genre, episodes, opt_level, api_key, provider):
 
     if provider == "claude":
         return call_claude_api(system_prompt, user_prompt, api_key)
-    else:
+    elif provider == "openai":
         return call_openai_api(system_prompt, user_prompt, api_key)
+    elif provider == "gemini":
+        return call_gemini_api(system_prompt, user_prompt, api_key)
+    elif provider == "deepseek":
+        return call_deepseek_api(system_prompt, user_prompt, api_key)
+    elif provider == "qwen":
+        return call_qwen_api(system_prompt, user_prompt, api_key)
+    elif provider == "ernie":
+        return call_ernie_api(system_prompt, user_prompt, api_key)
+    elif provider == "chatglm":
+        return call_chatglm_api(system_prompt, user_prompt, api_key)
+    elif provider == "kimi":
+        return call_kimi_api(system_prompt, user_prompt, api_key)
+    else:
+        raise ValueError(f"不支持的 API 提供商: {provider}")
 
 
 def call_claude_api(system_prompt, user_prompt, api_key):
@@ -302,6 +332,119 @@ def call_openai_api(system_prompt, user_prompt, api_key):
         ]
     )
 
+    return response.choices[0].message.content
+
+
+# ==================== 更多 API 调用函数 ====================
+
+def call_gemini_api(system_prompt, user_prompt, api_key):
+    """调用 Google Gemini API"""
+    import google.generativeai as genai
+
+    genai.configure(api_key=api_key)
+
+    model = genai.GenerativeModel(
+        model_name="gemini-1.5-pro",
+        system_instruction=system_prompt
+    )
+
+    response = model.generate_content(user_prompt)
+    return response.text
+
+
+def call_deepseek_api(system_prompt, user_prompt, api_key):
+    """调用 DeepSeek API"""
+    import openai
+
+    client = openai.OpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com"
+    )
+
+    response = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+
+def call_qwen_api(system_prompt, user_prompt, api_key):
+    """调用阿里通义千问 API"""
+    import openai
+
+    client = openai.OpenAI(
+        api_key=api_key,
+        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+    )
+
+    response = client.chat.completions.create(
+        model="qwen-plus",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+
+def call_ernie_api(system_prompt, user_prompt, api_key):
+    """调用百度文心一言 API"""
+    import openai
+
+    client = openai.OpenAI(
+        api_key=api_key,
+        base_url="https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat"
+    )
+
+    # 需要先获取 access_token，这里简化处理
+    response = client.chat.completions.create(
+        model="ernie-4.5-turbo-8k",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+
+def call_chatglm_api(system_prompt, user_prompt, api_key):
+    """调用智谱 ChatGLM API"""
+    import openai
+
+    client = openai.OpenAI(
+        api_key=api_key,
+        base_url="https://open.bigmodel.cn/api/paas/v4"
+    )
+
+    response = client.chat.completions.create(
+        model="glm-4-plus",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+
+def call_kimi_api(system_prompt, user_prompt, api_key):
+    """调用 Kimi (Moonshot) API"""
+    import openai
+
+    client = openai.OpenAI(
+        api_key=api_key,
+        base_url="https://api.moonshot.cn/v1"
+    )
+
+    response = client.chat.completions.create(
+        model="moonshot-v1-8k",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
     return response.choices[0].message.content
 
 
