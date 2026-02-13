@@ -10,7 +10,6 @@ import os
 # 导入 AI SDK
 import anthropic
 from openai import OpenAI
-import google.generativeai as genai
 
 
 # ==================== AI API 调用函数 ====================
@@ -65,29 +64,37 @@ def call_deepseek_api(system_prompt, user_prompt, api_key):
 
 
 def call_gemini_api(system_prompt, user_prompt, api_key):
-    """调用 Google Gemini API (2.5 Flash)"""
-    genai.configure(api_key=api_key)
-
-    model = genai.GenerativeModel(
-        model_name="gemini-2.0-flash-exp-01-09",
-        system_instruction=system_prompt
+    """调用 Google Gemini API (Flash) - OpenAI 兼容格式"""
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
 
-    response = model.generate_content(user_prompt)
-    return response.text
+    response = client.chat.completions.create(
+        model="gemini-2.0-flash-exp-01-09",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return response.choices[0].message.content
 
 
 def call_gemini_pro_api(system_prompt, user_prompt, api_key):
-    """调用 Google Gemini API (2.5 Pro)"""
-    genai.configure(api_key=api_key)
-
-    model = genai.GenerativeModel(
-        model_name="gemini-2.0-pro-exp-01-09",
-        system_instruction=system_prompt
+    """调用 Google Gemini API (Pro) - OpenAI 兼容格式"""
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
     )
 
-    response = model.generate_content(user_prompt)
-    return response.text
+    response = client.chat.completions.create(
+        model="gemini-2.0-pro-exp-01-09",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return response.choices[0].message.content
 
 
 def call_deepseek_api(system_prompt, user_prompt, api_key):
