@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>短剧剧本生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        header h1 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h2 {
+            font-size: 16px;
+            color: #1a1a2e;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4a6cf7;
+        }
+
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        textarea#novelInput {
+            min-height: 400px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #4a6cf7;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #3a5ce5;
+        }
+
+        .btn-primary:disabled {
+            background: #a0b3f7;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .status-bar {
+            padding: 10px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .status-bar.show {
+            display: block;
+        }
+
+        .status-bar.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-bar.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status-bar.loading {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .output-content {
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .optimization-report {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .optimization-report.show {
+            display: block;
+        }
+
+        .optimization-report h4 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .optimization-report ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .optimization-report li {
+            padding: 6px 0;
+            color: #666;
+            border-bottom: 1px solid #eee;
+        }
+
+        .optimization-report li:last-child {
+            border-bottom: none;
+        }
+
+        .format-example {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
+        }
+
+        .progress-bar .progress {
+            height: 100%;
+            background: #4a6cf7;
+            width: 0%;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>短剧剧本生成器</h1>
+            <p>输入小说，自动生成专业格式的短剧剧本</p>
+        </header>
+
+        <div class="main-content">
+            <!-- 左侧：输入 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>小说输入</h2>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label>剧本标题</label>
+                        <input type="text" id="title" placeholder="默认：短剧剧本">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>题材类型</label>
+                            <select id="genre">
+                                <option value="都市">都市</option>
+                                <option value="古装宅斗">古装宅斗</option>
+                                <option value="仙侠玄幻">仙侠玄幻</option>
+                                <option value="甜宠">甜宠</option>
+                                <option value="重生复仇">重生复仇</option>
+                                <option value="穿越">穿越</option>
+                                <option value="豪门">豪门</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>总集数</label>
+                            <input type="number" id="episodes" value="30" min="3" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label>优化级别</label>
+                            <select id="optimLevel">
+                                <option value="standard">标准优化</option>
+                                <option value="basic">基础优化</option>
+                                <option value="deep">深度优化</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>小说原文</label>
+                        <textarea id="novelInput" placeholder="请粘贴小说原文..."></textarea>
+                        <div class="format-example">建议字数：5,000 - 30,000字</div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="generateBtn" onclick="generateScript()">
+                            生成剧本
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearAll()">
+                            清空
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：输出 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>剧本输出</h2>
+                    <button class="btn btn-secondary" onclick="downloadScript()" id="downloadBtn" disabled>
+                        下载剧本
+                    </button>
+                </div>
+                <div class="panel-body">
+                    <div class="status-bar" id="statusBar">
+                        <span id="statusText"></span>
+                        <div class="progress-bar" id="progressBar">
+                            <div class="progress" id="progress"></div>
+                        </div>
+                    </div>
+                    <div class="output-content" id="outputContent" placeholder="生成的剧本将显示在这里..."></div>
+                    <div class="optimization-report" id="optReport">
+                        <h4>优化报告</h4>
+                        <ul id="optList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let generatedScript = '';
+        let optimizationReport = null;
+
+        async function generateScript() {
+            const novel = document.getElementById('novelInput').value.trim();
+            if (!novel) {
+                showStatus('请输入小说内容', 'error');
+                return;
+            }
+
+            const title = document.getElementById('title').value.trim() || '短剧剧本';
+            const genre = document.getElementById('genre').value;
+            const episodes = parseInt(document.getElementById('episodes').value) || 30;
+            const optLevel = document.getElementById('optimLevel').value;
+
+            // 禁用按钮
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = true;
+            btn.textContent = '生成中...';
+
+            showStatus('正在生成剧本...', 'loading');
+            startProgress();
+
+            try {
+                // TODO: 调用后端API
+                // const response = await fetch('/api/generate', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({ novel, title, genre, episodes, optLevel })
+                // });
+                // const data = await response.json();
+
+                // 模拟生成（演示用）
+                await simulateGenerate();
+
+                showStatus('生成完成！', 'success');
+                stopProgress();
+
+            } catch (error) {
+                showStatus('生成失败：' + error.message, 'error');
+                stopProgress();
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '生成剧本';
+            }
+        }
+
+        async function simulateGenerate() {
+            // 模拟API延迟
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            // 生成示例剧本
+            generatedScript = generateMockScript();
+            document.getElementById('outputContent').textContent = generatedScript;
+            document.getElementById('downloadBtn').disabled = false;
+
+            // 生成优化报告
+            optimizationReport = generateMockReport();
+            showOptimReport();
+        }
+
+        function generateMockScript() {
+            return `# 短剧剧本：${document.getElementById('title').value || '短剧剧本'}
+
+**题材：** ${document.getElementById('genre').value}
+**总集数：** ${document.getElementById('episodes').value}集
+
+**故事梗概：** 丫鬟苏清晏被逼替小姐与姑爷同床三年，求解放时被迫与侯府病弱大公子沈景珩结阴亲，在照顾沈景珩的过程中渐生情愫。
+
+**人物小传：**
+
+| 角色 | 年龄 | 身份/职业 | 性格特点 | 核心背景 |
+|------|------|-----------|---------|----------|
+| 苏清晏 | 18岁 | 陪嫁丫鬟 | 隐忍坚韧 | 家生子，全家性命握在小姐手中 |
+| 沈景珩 | 27岁 | 侯府嫡长子 | 清冷才子 | 幼年被借命，注定早逝 |
+| 沈昭烈 | 25岁 | 侯府二公子 | 纨绔霸道 | 暗恋大哥光环，害沈景珩落水 |
+
+**表演记忆点：**
+
+| 角色 | 性格标签 | 口头禅 | 标志性动作 |
+|------|---------|--------|------------|
+| 苏清晏 | 隐忍坚韧 | "奴婢不敢" | 低眉顺眼 |
+| 沈景珩 | 清冷深情 | "你真是……" | 耳根泛红 |
+| 沈昭烈 | 霸道狂妄 | "本侯" | 下巴微抬 |
+
+---
+
+**第1集：替身丫鬟**
+**核心剧情：** 苏清晏是小姐的陪嫁丫鬟，新婚之夜起便每晚替小姐承受姑爷的宠爱。
+
+1-1   小姐房中    夜    内
+人物：小姐  沈昭烈  苏清晏
+
+▲ 烛火摇曳，暖帐低垂。
+
+【画外音·苏清晏】 小姐体弱，侯爷武将出身太过威猛，一连三晚都没能圆房。我是她最信任的陪嫁丫鬟，只能替她……承受这一切。
+
+沈昭烈（调情）：「怎么磨磨蹭蹭的？」
+
+【★表演提示】苏清晏说谎时目光躲闪，双手交握
+
+苏清晏（轻声）：「在外面赏了会儿雪景。」
+
+▲ 沈昭烈不疑有他，欺身而上。
+
+...
+
+（共30集，完整剧本请调用后端API生成）
+`;
+        }
+
+        function generateMockReport() {
+            return {
+                '格式问题修复': 3,
+                '表演提示补充': 5,
+                '特写镜头补充': 2,
+                '配角记忆点补充': 1
+            };
+        }
+
+        function showOptimReport() {
+            const report = document.getElementById('optReport');
+            const list = document.getElementById('optList');
+            report.classList.add('show');
+            list.innerHTML = '';
+
+            for (const [item, count] of Object.entries(optimizationReport)) {
+                const li = document.createElement('li');
+                li.textContent = `${item}：${count}处`;
+                list.appendChild(li);
+            }
+        }
+
+        function showStatus(message, type) {
+            const bar = document.getElementById('statusBar');
+            const text = document.getElementById('statusText');
+            bar.className = 'status-bar show ' + type;
+            text.textContent = message;
+        }
+
+        function startProgress() {
+            const bar = document.getElementById('progressBar');
+            const progress = document.getElementById('progress');
+            bar.classList.add('show');
+            progress.style.width = '0%';
+
+            let width = 0;
+            const interval = setInterval(() => {
+                width += Math.random() * 10;
+                if (width > 90) width = 90;
+                progress.style.width = width + '%';
+            }, 300);
+        }
+
+        function stopProgress() {
+            const bar = document.getElementById('progressBar');
+            const progress = document.getElementById('progress');
+            progress.style.width = '100%';
+            setTimeout(() => {
+                bar.classList.remove('show');
+            }, 500);
+        }
+
+        function downloadScript() {
+            if (!generatedScript) return;
+
+            const blob = new Blob([generatedScript], { type: 'text/markdown' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${(document.getElementById('title').value || '剧本')}.md`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAll() {
+            document.getElementById('novelInput').value = '';
+            document.getElementById('title').value = '';
+            document.getElementById('outputContent').textContent = '';
+            document.getElementById('optReport').classList.remove('show');
+            document.getElementById('downloadBtn').disabled = true;
+            generatedScript = '';
+            optimizationReport = null;
+            showStatus('', '');
+        }
+    </script>
+</body>
+</html>
