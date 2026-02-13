@@ -69,7 +69,7 @@ def call_gemini_api(system_prompt, user_prompt, api_key):
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel(
-        model_name="gemini-2.5-flash-exp-03-25",
+        model_name="gemini-2.0-flash-exp-01-09",
         system_instruction=system_prompt
     )
 
@@ -82,7 +82,7 @@ def call_gemini_pro_api(system_prompt, user_prompt, api_key):
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel(
-        model_name="gemini-2.5-pro-exp-03-25",
+        model_name="gemini-2.0-pro-exp-01-09",
         system_instruction=system_prompt
     )
 
@@ -304,8 +304,8 @@ with st.sidebar:
             "claude": "Claude (Anthropic) - sonnet-4",
             "openai": "OpenAI - GPT-4o",
             "deepseek": "DeepSeek - chat",
-            "gemini_pro": "Google Gemini - 2.5 Pro",
-            "gemini_flash": "Google Gemini - 2.5 Flash"
+            "gemini_pro": "Google Gemini - 2.0 Pro",
+            "gemini_flash": "Google Gemini - 2.0 Flash"
         }[x],
         help="选择要使用的 AI API"
     )
