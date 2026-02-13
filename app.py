@@ -107,74 +107,6 @@ def call_deepseek_api(system_prompt, user_prompt, api_key):
     return response.choices[0].message.content
 
 
-def call_qwen_api(system_prompt, user_prompt, api_key):
-    """调用阿里通义千问 API"""
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-    )
-
-    response = client.chat.completions.create(
-        model="qwen-plus",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-    )
-    return response.choices[0].message.content
-
-
-def call_ernie_api(system_prompt, user_prompt, api_key):
-    """调用百度文心一言 API"""
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat"
-    )
-
-    response = client.chat.completions.create(
-        model="ernie-4.5-turbo-8k",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-    )
-    return response.choices[0].message.content
-
-
-def call_chatglm_api(system_prompt, user_prompt, api_key):
-    """调用智谱 ChatGLM API"""
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://open.bigmodel.cn/api/paas/v4"
-    )
-
-    response = client.chat.completions.create(
-        model="glm-4-plus",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-    )
-    return response.choices[0].message.content
-
-
-def call_kimi_api(system_prompt, user_prompt, api_key):
-    """调用 Kimi (Moonshot) API"""
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://api.moonshot.cn/v1"
-    )
-
-    response = client.chat.completions.create(
-        model="moonshot-v1-8k",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ]
-    )
-    return response.choices[0].message.content
-
-
 def call_ai_model(novel, title, genre, episodes, opt_level, api_key, provider):
     """
     调用 AI 模型生成剧本
@@ -336,13 +268,6 @@ st.markdown("输入小说，自动生成专业格式的短剧剧本")
 # 侧边栏配置
 with st.sidebar:
     st.header("⚙️ 配置参数")
-
-    st.markdown("""
-    **优化级别说明**
-    - 基础优化：仅格式化（场次编号、场景标注）
-    - 标准优化：格式化 + 表演提示 + 特写镜头
-    - 深度优化：全部 + 配角记忆点 + 台词优化
-    """)
 
     st.divider()
 
