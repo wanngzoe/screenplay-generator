@@ -7,6 +7,11 @@ import streamlit as st
 import time
 import os
 
+# 导入 AI SDK
+import anthropic
+from openai import OpenAI
+import google.generativeai as genai
+
 # 页面配置
 st.set_page_config(
     page_title="短剧剧本生成器",
@@ -315,8 +320,6 @@ def call_ai_model(novel, title, genre, episodes, opt_level, api_key, provider):
 
 def call_claude_api(system_prompt, user_prompt, api_key):
     """调用 Claude API"""
-    import anthropic
-
     client = anthropic.Anthropic(api_key=api_key)
 
     message = client.messages.create(
@@ -333,8 +336,6 @@ def call_claude_api(system_prompt, user_prompt, api_key):
 
 def call_openai_api(system_prompt, user_prompt, api_key):
     """调用 OpenAI API"""
-    from openai import OpenAI
-
     client = OpenAI(api_key=api_key)
 
     response = client.chat.completions.create(
@@ -353,8 +354,6 @@ def call_openai_api(system_prompt, user_prompt, api_key):
 
 def call_gemini_api(system_prompt, user_prompt, api_key):
     """调用 Google Gemini API"""
-    import google.generativeai as genai
-
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel(
