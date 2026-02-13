@@ -71,7 +71,7 @@ def call_gemini_api(system_prompt, user_prompt, api_key):
     )
 
     response = client.chat.completions.create(
-        model="gemini-2.0-flash-exp-01-09",
+        model="gemini-2.5-flash",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -88,7 +88,7 @@ def call_gemini_pro_api(system_prompt, user_prompt, api_key):
     )
 
     response = client.chat.completions.create(
-        model="gemini-2.0-pro-exp-01-09",
+        model="gemini-2.5-pro",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -311,8 +311,8 @@ with st.sidebar:
             "claude": "Claude (Anthropic) - sonnet-4",
             "openai": "OpenAI - GPT-4o",
             "deepseek": "DeepSeek - chat",
-            "gemini_pro": "Google Gemini - 2.0 Pro",
-            "gemini_flash": "Google Gemini - 2.0 Flash"
+            "gemini_pro": "Google Gemini - 2.5 Pro",
+            "gemini_flash": "Google Gemini - 2.5 Flash"
         }[x],
         help="选择要使用的 AI API"
     )
