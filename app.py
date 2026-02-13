@@ -20,7 +20,7 @@ def call_claude_api(system_prompt, user_prompt, api_key):
     client = anthropic.Anthropic(api_key=api_key)
 
     message = client.messages.create(
-        model="sonnet-4-20250514",
+        model="claude-sonnet-4-20250514",
         max_tokens=64000,
         system=system_prompt,
         messages=[
@@ -47,12 +47,42 @@ def call_openai_api(system_prompt, user_prompt, api_key):
     return response.choices[0].message.content
 
 
+def call_deepseek_api(system_prompt, user_prompt, api_key):
+    """调用 DeepSeek API"""
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com"
+    )
+
+    response = client.chat.completions.create(
+        model="deepseek-chat",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+    )
+    return response.choices[0].message.content
+
+
 def call_gemini_api(system_prompt, user_prompt, api_key):
-    """调用 Google Gemini API"""
+    """调用 Google Gemini API (2.5 Flash)"""
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel(
-        model_name="gemini-1.5-pro",
+        model_name="gemini-2.5-flash-exp-03-25",
+        system_instruction=system_prompt
+    )
+
+    response = model.generate_content(user_prompt)
+    return response.text
+
+
+def call_gemini_pro_api(system_prompt, user_prompt, api_key):
+    """调用 Google Gemini API (2.5 Pro)"""
+    genai.configure(api_key=api_key)
+
+    model = genai.GenerativeModel(
+        model_name="gemini-2.5-pro-exp-03-25",
         system_instruction=system_prompt
     )
 
@@ -246,18 +276,12 @@ def call_ai_model(novel, title, genre, episodes, opt_level, api_key, provider):
         return call_claude_api(system_prompt, user_prompt, api_key)
     elif provider == "openai":
         return call_openai_api(system_prompt, user_prompt, api_key)
-    elif provider == "gemini":
-        return call_gemini_api(system_prompt, user_prompt, api_key)
     elif provider == "deepseek":
         return call_deepseek_api(system_prompt, user_prompt, api_key)
-    elif provider == "qwen":
-        return call_qwen_api(system_prompt, user_prompt, api_key)
-    elif provider == "ernie":
-        return call_ernie_api(system_prompt, user_prompt, api_key)
-    elif provider == "chatglm":
-        return call_chatglm_api(system_prompt, user_prompt, api_key)
-    elif provider == "kimi":
-        return call_kimi_api(system_prompt, user_prompt, api_key)
+    elif provider == "gemini_flash":
+        return call_gemini_api(system_prompt, user_prompt, api_key)
+    elif provider == "gemini_pro":
+        return call_gemini_pro_api(system_prompt, user_prompt, api_key)
     else:
         raise ValueError(f"不支持的 API 提供商: {provider}")
 
@@ -350,16 +374,13 @@ with st.sidebar:
 
     api_provider = st.selectbox(
         "API 提供商",
-        ["claude", "openai", "gemini", "deepseek", "qwen", "ernie", "chatglm", "kimi"],
+        ["claude", "openai", "deepseek", "gemini_pro", "gemini_flash"],
         format_func=lambda x: {
-            "claude": "Claude (Anthropic)",
-            "openai": "OpenAI GPT-4",
-            "gemini": "Google Gemini",
-            "deepseek": "DeepSeek",
-            "qwen": "阿里通义千问",
-            "ernie": "百度文心一言",
-            "chatglm": "智谱 ChatGLM",
-            "kimi": "Kimi (Moonshot)"
+            "claude": "Claude (Anthropic) - sonnet-4",
+            "openai": "OpenAI - GPT-4o",
+            "deepseek": "DeepSeek - chat",
+            "gemini_pro": "Google Gemini - 2.5 Pro",
+            "gemini_flash": "Google Gemini - 2.5 Flash"
         }[x],
         help="选择要使用的 AI API"
     )
