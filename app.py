@@ -26,12 +26,22 @@ st.markdown("输入小说，自动生成专业格式的短剧剧本")
 
 # 侧边栏配置
 with st.sidebar:
-    st.header("配置参数")
+    st.header("⚙️ 配置参数")
+
+    st.markdown("""
+    **优化级别说明**
+    - 基础优化：仅格式化（场次编号、场景标注）
+    - 标准优化：格式化 + 表演提示 + 特写镜头
+    - 深度优化：全部 + 配角记忆点 + 台词优化
+    """)
+
+    st.divider()
+
     title = st.text_input("剧本标题", value="短剧剧本", help="默认为'短剧剧本'")
 
     genre = st.selectbox(
         "题材类型",
-        ["都市", "古装宅斗", "仙侠玄幻", "甜宠", "重生复仇", "穿越", "豪门"],
+        ["都市", "古装宅斗", "仙侠玄幻", "甜宠", "重生复仇", "穿越", "豪门", "其他"],
         help="选择剧本的题材类型"
     )
 
@@ -39,9 +49,13 @@ with st.sidebar:
 
     opt_level = st.selectbox(
         "优化级别",
-        ["standard", "basic", "deep"],
-        format_func=lambda x: {"standard": "标准优化", "basic": "基础优化", "deep": "深度优化"}[x],
-        help="标准优化包含格式+表演提示；深度优化增加配角记忆点优化"
+        ["deep", "standard", "basic"],
+        format_func=lambda x: {
+            "standard": "标准优化",
+            "basic": "基础优化",
+            "deep": "深度优化"
+        }[x],
+        help="基础优化：仅格式化；标准优化：格式+表演提示；深度优化：格式+表演提示+配角记忆点"
     )
 
     st.divider()
